@@ -1,0 +1,13 @@
+# 비밀
+.env
+.env.*
+!.env.example
+
+# 파이썬
+__pycache__/
+*.pyc
+.venv/
+
+# 노드
+node_modules/
+.next/
