@@ -114,13 +114,26 @@ class Verdict:
         return self.best / self.realized * 100
 
     @property
+    def tokens(self) -> int:
+        """거래한 고유 토큰 수. 봇 판별에 쓴다."""
+        return len({t.token for t in self.trades})
+
+    @property
     def median(self) -> float:
         """중앙값. 이게 마이너스인데 합계가 플러스면 '보통은 잃는다'는 뜻."""
         pnls = [t.pnl for t in self.trades]
         return statistics.median(pnls) if pnls else 0.0
 
-    def judge(self, gate: int = 20) -> tuple[str, str]:
-        """(판정, 한 줄 이유)"""
+    def judge(self, gate: int = 20, bot_trades: int = 500) -> tuple[str, str]:
+        """(판정, 한 줄 이유)
+
+        ⚠️ 봇은 채점하지 않는다. 따라 살 수 없는 상대이기 때문이다.
+           초당 여러 건을 돌리는 MEV 봇을 "잘하는 지갑"으로 표시하면
+           도구의 목적(따라 사면 되나)에 어긋난다.
+        """
+        if self.closed >= bot_trades:
+            return "🤖 봇", (f"완결 {self.closed:,}건 · 토큰 {self.tokens}종 — "
+                            f"사람이 따라갈 수 있는 빈도가 아니다")
         if self.closed < gate:
             return "⏳ 표본 부족", f"완결 {self.closed}건 (관문 {gate}건)"
         if self.net <= 0:

@@ -31,20 +31,32 @@ from __future__ import annotations
 import graph
 from verdict import Swap
 
-# 이더리움 메인넷 기준 기축토큰. 주소는 소문자로.
+# ⚠️ 기축은 **WETH 하나로 고정한다.** 스테이블을 같이 넣으면 안 된다.
+#
+#    2026-09-02에 WETH·USDC·USDT·DAI 를 전부 기축으로 뒀더니
+#    같은 WBTC 의 단가가 32(ETH 기준)와 77,225(달러 기준)로 섞여 들어왔고,
+#    손익을 합산하니 +299,923 ETH(1조원대)라는 말도 안 되는 값이 나왔다.
+#
+#    oc8에서 이미 배운 것과 같은 실수다 — "단위가 다르면 합산 금지".
+#    그때는 체인 간이었고 이번엔 기축 간이었을 뿐이다.
+#
+#    → 손익을 하나의 숫자로 내려면 기축이 하나여야 한다.
+#      스테이블 페어 거래는 채점하지 않고 건너뛴다(개수는 센다).
 QUOTE = {
     "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": ("WETH", 18),
-    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": ("USDC", 6),
-    "0xdac17f958d2ee523a2206206994597c13d831ec7": ("USDT", 6),
-    "0x6b175474e89094c44da98b954eedeac495271d0f": ("DAI", 18),
 }
 
+# ⚠️ 중첩 필터(transaction_)를 쓰지 않는다.
+#    `where: { transaction_: { blockNumber_gte: N } }` 로 걸면
+#    인덱서가 40초를 끌다가 `bad indexers` 로 실패한다(2026-09-02 실측).
+#    같은 구간을 `timestamp_gte` 로 거니 **1.7초**에 돌아왔다. 24배 차이다.
+#    → 블록이 아니라 시각으로 자르고, 블록 필터는 받아온 뒤에 우리가 건다.
 SWAPS_Q = """
-query($w: String!, $from: Int!, $skip: Int!) {
+query($w: String!, $ts: BigInt!, $skip: Int!) {
   swaps(
     first: 1000, skip: $skip,
-    where: { origin: $w, transaction_: { blockNumber_gte: $from } }
-    orderBy: timestamp, orderDirection: asc
+    where: { origin: $w, timestamp_gte: $ts }
+    orderBy: timestamp, orderDirection: desc
   ) {
     timestamp amountUSD amount0 amount1
     token0 { id symbol decimals }
@@ -63,7 +75,7 @@ def to_swaps(rows: list[dict]) -> tuple[list[Swap], dict, dict]:
     """
     out: list[Swap] = []
     tx_map: dict = {}
-    skip = {"둘다기축": 0, "기축없음": 0, "금액0": 0}
+    skip = {"둘다기축": 0, "WETH페어아님": 0, "금액0": 0}
 
     for r in rows:
         t0, t1 = r["token0"], r["token1"]
@@ -75,7 +87,8 @@ def to_swaps(rows: list[dict]) -> tuple[list[Swap], dict, dict]:
             skip["둘다기축"] += 1
             continue
         if not q0 and not q1:
-            skip["기축없음"] += 1
+            # WETH 가 안 낀 거래(스테이블 페어 등). 단위가 달라 합산 불가.
+            skip["WETH페어아님"] += 1
             continue
 
         # 기축이 아닌 쪽이 우리가 채점할 대상 토큰
@@ -104,25 +117,44 @@ def to_swaps(rows: list[dict]) -> tuple[list[Swap], dict, dict]:
     return out, skip, tx_map
 
 
-def fetch(subgraph_id: str, wallet: str, from_block: int,
-          max_pages: int = 10, with_gas: bool = True) -> tuple[list[Swap], dict]:
-    """지갑 하나의 스왑을 from_block 이후로 전부 가져온다.
+def fetch(subgraph_id: str, wallet: str, from_block: int, since_ts: int,
+          max_pages: int = 10, with_gas: bool = True,
+          verbose: bool = False) -> tuple[list[Swap], dict]:
+    """지갑 하나의 스왑을 가져온다.
+
+    since_ts   : 서브그래프에 거는 필터 (시각). 넉넉하게 잡는다.
+    from_block : 판정에 쓸 실제 기준. 받아온 뒤 여기서 다시 자른다.
+
+    ⚠️ 왜 두 개냐면, 서브그래프는 블록 중첩 필터가 느려서 시각으로 걸고
+       (위 SWAPS_Q 주석 참조), 실제 채점 기준은 블록이어야 하기 때문이다.
+       블록이 기준인 이유: 등록 시점을 못박는 게 이 도구의 핵심이라
+       "몇 시쯤"이 아니라 "정확히 이 블록부터"여야 한다.
 
     ⚠️ 페이지를 다 못 돌면 그 사실을 meta 에 남긴다. 조용히 잘라내면
        "거래가 적은 지갑"과 "우리가 덜 본 지갑"이 구분되지 않는다.
     """
+    # ⚠️ 최신순(desc)으로 받는다. 오름차순으로 받으면 스왑이 아주 많은 지갑에서
+    #    페이지 상한에 걸려 **최근 것만 잔뜩 받고 정작 기준 블록 이후가 안 잡힌다.**
+    #    2026-09-02에 실제로 1만 건을 받고도 유효 0건이 나왔다.
+    #    최신부터 받으면 기준 블록에 닿는 순간 멈출 수 있다.
     rows, page = [], 0
     truncated = False
     while page < max_pages:
         d = graph.query(subgraph_id, SWAPS_Q, {
-            "w": wallet.lower(), "from": from_block, "skip": page * 1000})
+            "w": wallet.lower(), "ts": str(since_ts), "skip": page * 1000})
         got = d["swaps"]
         rows += got
         if len(got) < 1000:
             break
+        # 이번 페이지의 가장 오래된 것이 이미 기준보다 과거면 더 볼 필요 없다
+        if int(got[-1]["transaction"]["blockNumber"]) < from_block:
+            break
         page += 1
     else:
         truncated = True
+
+    # 서브그래프가 시각으로 잘라줬으니, 정확한 블록 기준은 여기서 건다
+    rows = [r for r in rows if int(r["transaction"]["blockNumber"]) >= from_block]
 
     swaps, skip, tx_map = to_swaps(rows)
     meta = {"raw": len(rows), "used": len(swaps), "skipped": skip,
@@ -131,7 +163,7 @@ def fetch(subgraph_id: str, wallet: str, from_block: int,
     if with_gas and swaps:
         import gas as gasmod
         hashes = list({tx_map[id(s)] for s in swaps})
-        gmap, gstat = gasmod.gas_of(hashes)
+        gmap, gstat = gasmod.gas_of(hashes, verbose=verbose)
         for s in swaps:
             g = gmap.get(tx_map[id(s)])
             if g is not None:
@@ -155,12 +187,14 @@ if __name__ == "__main__":
         d = graph.query(SG, "{ swaps(first: 1, orderBy: timestamp, orderDirection: desc) { origin } }")
         wallet = d["swaps"][0]["origin"]
 
+    import datetime as dt
     head = graph.health(SG)
     FROM = head - 200_000          # 데모용으로 과거를 좀 본다 (약 한 달)
+    SINCE = int((dt.datetime.now(dt.UTC) - dt.timedelta(days=40)).timestamp())
     print(f"지갑 {wallet}")
     print(f"블록 {FROM:,} ~ {head:,} 구간\n")
 
-    swaps, meta = fetch(SG, wallet, FROM)
+    swaps, meta = fetch(SG, wallet, FROM, SINCE, verbose=True)
     print(f"원본 스왑 {meta['raw']}건 → 사용 {meta['used']}건")
     print(f"  건너뜀: {meta['skipped']}")
     if meta["truncated"]:

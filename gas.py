@@ -52,21 +52,21 @@ def _load_cache() -> dict:
     return {}
 
 
-def _rpc(method: str, params: list, retries: int = 2):
+def _rpc(method: str, params: list, retries: int = 1):
     last = None
     for attempt in range(retries + 1):
         for url in RPCS:
             try:
                 body = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
                 req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=UA)
-                r = json.load(urllib.request.urlopen(req, timeout=20))
+                r = json.load(urllib.request.urlopen(req, timeout=8))
                 if "result" in r and r["result"] is not None:
                     return r["result"]
                 last = r.get("error", "result 없음")
             except Exception as e:
                 last = e
         if attempt < retries:
-            time.sleep(1.5 * (attempt + 1))
+            time.sleep(0.8)
     raise RuntimeError(f"모든 RPC 실패: {str(last)[:100]}")
 
 
@@ -94,8 +94,15 @@ def gas_of(tx_hashes: list[str], verbose: bool = False) -> tuple[dict, dict]:
             stats["fetched"] += 1
         except Exception:
             stats["failed"] += 1
+        # ⚠️ 50건마다 캐시를 저장한다. 중간에 죽어도 받아둔 건 안 날아간다.
+        #    oc8에서 30,000블록 스캔이 25분 만에 죽으면서 전부 잃었던 것과
+        #    같은 실수를 반복하지 않으려는 것.
+        if stats["fetched"] and stats["fetched"] % 50 == 0:
+            CACHE.write_text(json.dumps(cache))
         if verbose and i % 25 == 0:
-            print(f"    {i}/{len(tx_hashes)} ({time.time()-t0:.0f}초)", flush=True)
+            print(f"    {i}/{len(tx_hashes)} "
+                  f"(받음 {stats['fetched']} 실패 {stats['failed']}, "
+                  f"{time.time()-t0:.0f}초)", flush=True)
 
     if stats["fetched"]:
         CACHE.write_text(json.dumps(cache))
