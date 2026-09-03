@@ -124,16 +124,35 @@ class Verdict:
         pnls = [t.pnl for t in self.trades]
         return statistics.median(pnls) if pnls else 0.0
 
-    def judge(self, gate: int = 20, bot_trades: int = 500) -> tuple[str, str]:
+    def judge(self, gate: int = 20, span_blocks: int = 0,
+              bot_per_day: float = 20.0, gas_known: bool = True) -> tuple[str, str]:
         """(판정, 한 줄 이유)
 
         ⚠️ 봇은 채점하지 않는다. 따라 살 수 없는 상대이기 때문이다.
-           초당 여러 건을 돌리는 MEV 봇을 "잘하는 지갑"으로 표시하면
-           도구의 목적(따라 사면 되나)에 어긋난다.
+
+        ⚠️ 봇 기준을 **총 건수가 아니라 하루 빈도**로 잡는다.
+           2026-09-03에 총 건수(500건)로 걸었더니, 페이지 수를 2에서 4로
+           늘리자 같은 지갑이 🟢 통과에서 🤖 봇으로 바뀌었다.
+           **기준이 "얼마나 벌었나"가 아니라 "우리가 얼마나 봤나"에 좌우된 것이다.**
+           관측량이 판정을 바꾸면 그건 기준이 아니다.
+
+           span_blocks 를 주면 하루 환산 빈도로 판단한다(블록타임 12초 가정).
+           안 주면 봇 판정을 건너뛴다 — 모르는 채로 단정하지 않는다.
         """
-        if self.closed >= bot_trades:
-            return "🤖 봇", (f"완결 {self.closed:,}건 · 토큰 {self.tokens}종 — "
-                            f"사람이 따라갈 수 있는 빈도가 아니다")
+        if span_blocks > 0:
+            days = max(span_blocks * 12 / 86400, 0.5)
+            per_day = self.closed / days
+            if per_day >= bot_per_day:
+                return "🤖 봇", (f"하루 {per_day:.0f}건 · 토큰 {self.tokens}종 — "
+                                f"사람이 따라갈 수 있는 빈도가 아니다")
+
+        # ⚠️ 가스를 모르면 손익 판정을 하지 않는다.
+        #    2026-09-03에 스왑이 많다는 이유로 가스를 생략했는데 봇 판정은
+        #    안 나온 지갑이 있었다. 결과적으로 **가스 없이 🔴 탈락**을 내렸다.
+        #    근거 없는 판정은 틀린 판정보다 나쁘다 — 틀린 줄도 모르기 때문이다.
+        if not gas_known:
+            return "⚪ 판정 보류", (f"완결 {self.closed:,}건이지만 가스를 조회하지 않았다 — "
+                                  f"가스 없이는 손익을 판정할 수 없다")
         if self.closed < gate:
             return "⏳ 표본 부족", f"완결 {self.closed}건 (관문 {gate}건)"
         if self.net <= 0:

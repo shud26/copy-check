@@ -1,0 +1,49 @@
+{
+  "wallets": [
+    {
+      "addr": "0xfe0c760cbcb9da239b9ba805f0aeaed3be84f65a",
+      "label": "steady-fe0c",
+      "chain": "ethereum",
+      "pinned_block": 25646367,
+      "pinned_ts": 1785433528,
+      "pinned_at": "2026-07-30 17:45 UTC",
+      "demo": true
+    },
+    {
+      "addr": "0x82da8233b45b02c154d9ce3c46e99eec18e25a4f",
+      "label": "loser-82da",
+      "chain": "ethereum",
+      "pinned_block": 25646367,
+      "pinned_ts": 1785433528,
+      "pinned_at": "2026-07-30 17:45 UTC",
+      "demo": true
+    },
+    {
+      "addr": "0x9235488863c50096c46c2c988b867e3634d33c8c",
+      "label": "bot-9235",
+      "chain": "ethereum",
+      "pinned_block": 25646367,
+      "pinned_ts": 1785433529,
+      "pinned_at": "2026-07-30 17:45 UTC",
+      "demo": true
+    },
+    {
+      "addr": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+      "label": "bot-f70d",
+      "chain": "ethereum",
+      "pinned_block": 25646367,
+      "pinned_ts": 1785433529,
+      "pinned_at": "2026-07-30 17:45 UTC",
+      "demo": true
+    },
+    {
+      "addr": "0x64c7663bffe42724b6c30d7b88e69435f15fbbc8",
+      "label": "quiet-64c7",
+      "chain": "ethereum",
+      "pinned_block": 25646367,
+      "pinned_ts": 1785433530,
+      "pinned_at": "2026-07-30 17:45 UTC",
+      "demo": true
+    }
+  ]
+}
