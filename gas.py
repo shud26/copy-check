@@ -28,9 +28,11 @@ from __future__ import annotations
 
 import json
 import pathlib
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 UA = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
 
@@ -70,42 +72,61 @@ def _rpc(method: str, params: list, retries: int = 1):
     raise RuntimeError(f"모든 RPC 실패: {str(last)[:100]}")
 
 
-def gas_of(tx_hashes: list[str], verbose: bool = False) -> tuple[dict, dict]:
-    """tx 해시 목록 → {해시: 가스(ETH)}. 캐시를 쓴다.
+def gas_of(tx_hashes: list[str], verbose: bool = False,
+           workers: int = 12) -> tuple[dict, dict]:
+    """tx 해시 목록 → {해시: 가스(ETH)}. 캐시 + 병렬.
+
+    ⚠️ 순차로 받으면 건당 0.15초라 3,400건이 8.7분이다(2026-09-03 실측).
+       데모 영상 4분 안에 아무것도 못 보여준다. 그래서 병렬로 받는다.
+
+    ⚠️ 워커를 너무 올리면 공개 RPC가 막는다. 12 정도가 안전선이다.
+       실패한 건은 0으로 채우지 않고 failed 로만 센다 —
+       "가스가 없었다"와 "못 받았다"는 다르다.
 
     반환: (가스 맵, 통계)
-    ⚠️ 못 받은 건은 맵에 안 넣는다. 통계의 failed 로 센다.
     """
     cache = _load_cache()
     out, stats = {}, {"cached": 0, "fetched": 0, "failed": 0}
     t0 = time.time()
+    lock = threading.Lock()
 
-    for i, h in enumerate(tx_hashes, 1):
+    todo = []
+    for h in tx_hashes:
         h = h.lower()
         if h in cache:
             out[h] = cache[h]
             stats["cached"] += 1
-            continue
+        else:
+            todo.append(h)
+
+    done = [0]
+
+    def work(h):
         try:
             r = _rpc("eth_getTransactionReceipt", [h])
             g = int(r["gasUsed"], 16) * int(r["effectiveGasPrice"], 16) / 1e18
-            out[h] = g
-            cache[h] = g
-            stats["fetched"] += 1
+            with lock:
+                out[h] = g
+                cache[h] = g
+                stats["fetched"] += 1
         except Exception:
-            stats["failed"] += 1
-        # ⚠️ 50건마다 캐시를 저장한다. 중간에 죽어도 받아둔 건 안 날아간다.
-        #    oc8에서 30,000블록 스캔이 25분 만에 죽으면서 전부 잃었던 것과
-        #    같은 실수를 반복하지 않으려는 것.
-        if stats["fetched"] and stats["fetched"] % 50 == 0:
-            CACHE.write_text(json.dumps(cache))
-        if verbose and i % 25 == 0:
-            print(f"    {i}/{len(tx_hashes)} "
-                  f"(받음 {stats['fetched']} 실패 {stats['failed']}, "
-                  f"{time.time()-t0:.0f}초)", flush=True)
+            with lock:
+                stats["failed"] += 1
+        with lock:
+            done[0] += 1
+            # 200건마다 캐시 저장 — 중간에 죽어도 받아둔 건 안 날아간다
+            if done[0] % 200 == 0:
+                CACHE.write_text(json.dumps(cache))
+                if verbose:
+                    print(f"    {done[0]}/{len(todo)} "
+                          f"(받음 {stats['fetched']} 실패 {stats['failed']}, "
+                          f"{time.time()-t0:.0f}초)", flush=True)
 
-    if stats["fetched"]:
+    if todo:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            list(ex.map(work, todo))
         CACHE.write_text(json.dumps(cache))
+
     stats["seconds"] = round(time.time() - t0, 1)
     return out, stats
 

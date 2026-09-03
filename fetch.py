@@ -160,6 +160,14 @@ def fetch(subgraph_id: str, wallet: str, from_block: int, since_ts: int,
     meta = {"raw": len(rows), "used": len(swaps), "skipped": skip,
             "truncated": truncated}
 
+    # ⚠️ 봇으로 판정될 지갑은 가스를 받지 않는다.
+    #    어차피 🤖 로 걸러지는데 3,400건 × 0.15초를 쓸 이유가 없다.
+    #    스왑 수만으로 미리 알 수 있으므로 여기서 끊는다.
+    BOT_HINT = 1000
+    if with_gas and len(swaps) >= BOT_HINT:
+        meta["gas_skipped_bot"] = len(swaps)
+        with_gas = False
+
     if with_gas and swaps:
         import gas as gasmod
         hashes = list({tx_map[id(s)] for s in swaps})
