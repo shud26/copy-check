@@ -13,21 +13,54 @@ import html
 import json
 import pathlib
 
+import icons
+
 OUT = pathlib.Path("out")
-COLOR = {
-    "🟢": ("#0f7b3d", "#dcfce7"),
-    "🎲": ("#b45309", "#fef3c7"),
-    "🔴": ("#c02626", "#fee2e2"),
-    "🤖": ("#4b5563", "#f3f4f6"),
-    "⏳": ("#6b7280", "#f9fafb"),
-    "⚪": ("#6b7280", "#f3f4f6"),
-    "⚠️": ("#c02626", "#fee2e2"),
-}
+
+
+def waterfall(net: float, best: float, ex: float) -> str:
+    """최대 1건을 빼면 어떻게 되는지 막대 세 개로.
+
+    ⚠️ 이 도구의 주장이 여기 다 들어 있다. 심사위원이 4분 영상에서
+       표 다섯 줄을 읽을 리 없다. **0선을 넘어가는 막대 하나**면 3초에 끝난다.
+
+    왼쪽  가스 뺀 뒤 (지금 성적)
+    가운데 빠지는 한 건  ← 항상 아래로. 빼는 것이므로
+    오른쪽 남은 것       ← 여기가 0선 아래면 '한 방 의존'
+
+    ⚠️ 0선은 그림 한가운데가 아니라 값의 범위에 따라 움직인다.
+       전부 음수인 지갑에서 막대가 위에 뜨면 거짓말이 된다(2026-09-03 수정).
+    """
+    vals = [net, -abs(best), ex]
+    hi = max(max(vals), 0.0)
+    lo = min(min(vals), 0.0)
+    span = (hi - lo) or 1e-12
+
+    H, TOP, BOT = 46.0, 6.0, 16.0     # 그림 높이 · 위아래 여백
+    zero = TOP + (hi / span) * H      # 0선의 y좌표
+
+    def bar(x, v, color, w=54):
+        y = TOP + ((hi - v) / span) * H if v >= 0 else zero
+        ht = max(2.0, abs(v) / span * H)
+        return (f'<rect x="{x}" y="{y:.1f}" width="{w}" height="{ht:.1f}" '
+                f'rx="2" fill="var({color})" opacity=".72"/>')
+
+    ty = H + TOP + 12
+    return f'''<svg viewBox="0 0 200 {H+TOP+BOT:.0f}" class="wf" role="img"
+     aria-label="가스 뺀 뒤 손익에서 최대 1건을 빼면 남는지 보여주는 막대">
+  <line x1="0" y1="{zero:.1f}" x2="200" y2="{zero:.1f}"
+        stroke="var(--line)" stroke-width="1"/>
+  {bar(8, net, "--ok" if net > 0 else "--bad")}
+  {bar(73, -abs(best), "--bad")}
+  {bar(138, ex, "--ok" if ex > 0 else "--bad")}
+  <text x="35" y="{ty:.0f}" font-size="8" fill="var(--mute)" text-anchor="middle">가스 뺀 뒤</text>
+  <text x="100" y="{ty:.0f}" font-size="8" fill="var(--mute)" text-anchor="middle">빼는 한 건</text>
+  <text x="165" y="{ty:.0f}" font-size="8" fill="var(--mute)" text-anchor="middle">남은 것</text>
+</svg>'''
 
 
 def card(r: dict) -> str:
     v = r.get("verdict", "?")
-    fg, bg = COLOR.get(v[0], ("#374151", "#f3f4f6"))
     n = lambda k: r.get(k, 0) or 0
 
     # 경고 배지 — 숨기지 않는다
@@ -46,9 +79,8 @@ def card(r: dict) -> str:
         f'<span class="warn">{html.escape(w)}</span>' for w in warn)
 
     if r.get("error"):
-        return f"""<article class="card">
-  <div class="top"><b>{html.escape(r['label'])}</b>
-    <span class="verdict" style="color:{fg};background:{bg}">{html.escape(v)}</span></div>
+        return f"""<article class="card" style="{icons.stripe(v)}">
+  <div class="top"><b>{html.escape(r['label'])}</b>{icons.badge(v)}</div>
   <div class="addr">{html.escape(r['addr'])}</div>
   <p class="why">{html.escape(r.get('why',''))}</p>
   <div class="warns">{warn_html}</div>
@@ -75,9 +107,9 @@ def card(r: dict) -> str:
     <tr class="key"><td>최대 1건 빼면</td><td class="{'p' if n('net_ex_best')>0 else 'm'}">{n('net_ex_best'):+.5f}</td></tr>
     <tr><td>중앙값</td><td class="{'p' if n('median')>0 else 'm'}">{n('median'):+.5f}</td></tr>'''
 
-    return f"""<article class="card">
-  <div class="top"><b>{html.escape(r['label'])}</b>
-    <span class="verdict" style="color:{fg};background:{bg}">{html.escape(v)}</span></div>
+    wf = "" if no_gas else waterfall(n("net"), n("best"), n("net_ex_best"))
+    return f"""<article class="card" style="{icons.stripe(v)}">
+  <div class="top"><b>{html.escape(r['label'])}</b>{icons.badge(v)}</div>
   <div class="addr">{html.escape(r['addr'])}</div>
 
   <div class="grid">
@@ -89,10 +121,8 @@ def card(r: dict) -> str:
 
   <table>{rows}</table>
 
-  {"" if (not share or no_gas) else f'''<div class="sharewrap">
-    <div class="sharebar"><span style="width:{bar:.0f}%"></span></div>
-    <div class="sharetxt">최대 1건이 전체 손익의 <b>{share:.0f}%</b></div>
-  </div>'''}
+  {wf}
+  {"" if (not share or no_gas) else f'''<div class="sharetxt">최대 1건이 전체 손익의 <b>{share:.0f}%</b></div>'''}
 
   <p class="why">{html.escape(r.get('why',''))}</p>
   <div class="meta">블록 {n('pinned_block'):,} 고정 · {n('span_blocks'):,}블록 경과
@@ -110,8 +140,10 @@ def build():
     cnt = {}
     for r in rs:
         cnt[r.get("verdict", "?")] = cnt.get(r.get("verdict", "?"), 0) + 1
-    chips = "".join(f'<span class="chip">{html.escape(k)} {v}</span>'
-                    for k, v in sorted(cnt.items()))
+    chips = "".join(f'<span class="chipwrap">{icons.badge(k)}'
+                    f'<b class="chipnum">{v}</b></span>'
+                    for k, v in sorted(cnt.items(),
+                                       key=lambda x: order.get(x[0][0], 9)))
 
     page = f"""<!doctype html>
 <meta charset="utf-8">
@@ -119,26 +151,32 @@ def build():
 <title>Copy Check</title>
 <style>
 :root{{--bg:#fff;--fg:#16181d;--dim:#6b7280;--line:#e5e7eb;--card:#fafafa;
---pos:#0f7b3d;--neg:#c02626;--accent:#2563eb}}
+--pos:#0f7b3d;--neg:#c02626;--accent:#2563eb;
+--ok:#0f7b3d;--bad:#c02626;--warn:#b45309;--mute:#6b7280}}
 @media(prefers-color-scheme:dark){{:root{{--bg:#0f1115;--fg:#e6e8ec;--dim:#8b93a1;
---line:#252932;--card:#161920;--pos:#4ade80;--neg:#f87171;--accent:#60a5fa}}}}
+--line:#252932;--card:#161920;--pos:#4ade80;--neg:#f87171;--accent:#60a5fa;
+--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--mute:#8b93a1}}}}
 *{{box-sizing:border-box}}
 body{{margin:0;padding:30px 18px 70px;background:var(--bg);color:var(--fg);
 font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
 .wrap{{max-width:1000px;margin:0 auto}}
 h1{{font-size:24px;margin:0 0 4px;letter-spacing:-.02em}}
 .sub{{color:var(--dim);font-size:13.5px;margin:0 0 6px;line-height:1.8}}
-.chips{{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 22px}}
-.chip{{border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:13px}}
+.chips{{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0 24px;align-items:center}}
+.chipwrap{{display:flex;align-items:center;gap:7px}}
+.chipnum{{font-size:19px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}}
 .cards{{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}}
-.card{{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 17px}}
+.card{{background:var(--card);border:1px solid var(--line);border-radius:4px;
+padding:15px 17px}}
 .top{{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}}
 .top b{{font-size:15.5px}}
-.verdict{{font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}}
+.verdict{{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;
+font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:3px;white-space:nowrap}}
 .addr{{font-size:11px;color:var(--dim);font-family:ui-monospace,monospace;
 word-break:break-all;margin-bottom:12px}}
 .grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}}
-.grid div{{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 4px;text-align:center}}
+.grid div{{background:var(--bg);border:1px solid var(--line);border-radius:3px;
+padding:6px 4px;text-align:center}}
 .grid span{{display:block;font-size:10px;color:var(--dim)}}
 .grid b{{font-size:14px;font-variant-numeric:tabular-nums}}
 table{{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}}
@@ -146,17 +184,16 @@ td{{padding:4px 0;font-variant-numeric:tabular-nums}}
 td:last-child{{text-align:right}}
 tr.hl td{{border-top:1px solid var(--line);padding-top:6px}}
 tr.key td{{font-weight:700;background:color-mix(in srgb,var(--accent) 9%,transparent)}}
+h1{{font-variant-numeric:tabular-nums}}
 .p{{color:var(--pos)}}.m{{color:var(--neg)}}.dim{{color:var(--dim)}}
 .unk{{color:var(--dim);font-style:italic;font-size:12px}}
-.sharewrap{{margin:4px 0 10px}}
-.sharebar{{height:5px;background:var(--line);border-radius:3px;overflow:hidden}}
-.sharebar span{{display:block;height:100%;background:var(--neg);opacity:.65}}
-.sharetxt{{font-size:11.5px;color:var(--dim);margin-top:4px}}
+.wf{{width:100%;height:auto;margin:2px 0 4px;display:block}}
+.sharetxt{{font-size:11.5px;color:var(--dim);margin:0 0 6px}}
 .why{{font-size:12.5px;color:var(--dim);margin:8px 0 6px;line-height:1.7}}
 .meta{{font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}}
 .warns{{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}}
-.warn{{font-size:10.5px;color:#b45309;background:color-mix(in srgb,#f59e0b 15%,transparent);
-border-radius:5px;padding:1px 7px}}
+.warn{{font-size:10.5px;color:var(--warn);border:1px dashed var(--warn);
+border-radius:2px;padding:1px 6px;opacity:.8}}
 .note{{font-size:12.5px;color:var(--dim);line-height:1.9;margin-top:34px;
 border-top:1px solid var(--line);padding-top:18px}}
 .note b{{color:var(--fg)}}
