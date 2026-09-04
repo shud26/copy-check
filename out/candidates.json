@@ -1,79 +1,54 @@
 {
-  "generated_at": "2026-09-04 14:55 UTC",
+  "generated_at": "2026-09-04 15:01 UTC",
   "note": "채점 가능한 지갑 목록. 과거 손익으로 고르지 않았음.",
   "stream": {
-    "rows": 6000,
-    "span_sec": 3888,
-    "newest": 1788533699,
-    "oldest": 1788529811,
-    "span_hours": 1.1,
-    "wallets_seen": 2109,
-    "probed": 140
+    "rows": 8000,
+    "span_sec": 5076,
+    "newest": 1788534011,
+    "oldest": 1788528935,
+    "span_hours": 1.4,
+    "wallets_seen": 2590,
+    "probed": 220
   },
   "filters": {
-    "rows": 6000,
-    "probe": 140,
-    "top": 12,
+    "rows": 8000,
+    "probe": 220,
+    "top": 20,
     "days": 21,
     "max_pages": 2,
     "bot_per_day": 20.0,
-    "min_per_day": 0.7,
+    "min_per_day": 1.0,
     "max_idle": 3.0,
     "sort": "human",
     "workers": 6
   },
   "dropped": {
-    "하루 0.1건 — 너무 조용함": 1,
-    "완결 0건 — quiet-64c7 유형": 26,
-    "하루 0.2건 — 너무 조용함": 8,
-    "판 적이 없음 — 완결이 안 생김": 22,
+    "완결 0건 — quiet-64c7 유형": 49,
+    "너무 많음(≥2,000건) — 봇": 2,
+    "하루 0.3건 — 너무 조용함": 4,
+    "판 적이 없음 — 완결이 안 생김": 30,
+    "하루 0.1건 — 너무 조용함": 4,
+    "하루 0.6건 — 너무 조용함": 4,
+    "하루 0.8건 — 너무 조용함": 3,
+    "하루 0.2건 — 너무 조용함": 10,
+    "하루 0.7건 — 너무 조용함": 3,
+    "하루 0.9건 — 너무 조용함": 3,
+    "WETH 페어 거래 없음": 16,
+    "하루 22.5건 — 봇 기준(20.0) 이상": 1,
+    "하루 25.9건 — 봇 기준(20.0) 이상": 1,
+    "같은 바스켓 6개 — 봇 무리 의심 (AAVE·LDO·LINK·UNI…)": 6,
+    "하루 38.3건 — 봇 기준(20.0) 이상": 1,
+    "7.0일째 조용 — 은퇴 의심": 1,
+    "하루 69.0건 — 봇 기준(20.0) 이상": 1,
+    "하루 24.4건 — 봇 기준(20.0) 이상": 1,
     "같은 바스켓 6개 — 봇 무리 의심 (LINK·MANYU·SAF·SHIB…)": 6,
+    "하루 0.4건 — 너무 조용함": 4,
     "같은 바스켓 3개 — 봇 무리 의심 (MANYU·SAF·SHIB…)": 3,
-    "WETH 페어 거래 없음": 10,
-    "하루 0.6건 — 너무 조용함": 2,
-    "하루 0.4건 — 너무 조용함": 3,
-    "너무 많음(≥2,000건) — 봇": 1,
     "하루 0.5건 — 너무 조용함": 1,
-    "같은 바스켓 3개 — 봇 무리 의심 (AAVE·LDO·LINK·UNI…)": 3,
-    "하루 0.3건 — 너무 조용함": 1,
-    "4.6일째 조용 — 은퇴 의심": 1,
-    "하루 42.3건 — 봇 기준(20.0) 이상": 1,
-    "하루 58.1건 — 봇 기준(20.0) 이상": 1,
-    "하루 51.0건 — 봇 기준(20.0) 이상": 1,
     "하루 21.6건 — 봇 기준(20.0) 이상": 1,
-    "하루 21.5건 — 봇 기준(20.0) 이상": 1,
-    "하루 37.3건 — 봇 기준(20.0) 이상": 1,
-    "하루 43.5건 — 봇 기준(20.0) 이상": 1,
-    "하루 32.2건 — 봇 기준(20.0) 이상": 1
+    "하루 37.3건 — 봇 기준(20.0) 이상": 1
   },
   "candidates": [
-    {
-      "addr": "0x13a8147e3f5c2da365556bf7e2431d45efa074c9",
-      "weth_swaps": 10,
-      "raw_swaps": 12,
-      "skipped": {
-        "둘다기축": 0,
-        "WETH페어아님": 2,
-        "금액0": 0
-      },
-      "truncated": false,
-      "buys": 6,
-      "sells": 4,
-      "tokens": 4,
-      "basket": [
-        "BMNR",
-        "Gio",
-        "MRE",
-        "USDC"
-      ],
-      "closed": 1,
-      "span_days": 11.8,
-      "per_day": 0.8,
-      "closed_per_day": 0.08,
-      "last_seen": "2026-09-04 02:50 UTC",
-      "idle_days": 0.5,
-      "days_to_gate": 250.0
-    },
     {
       "addr": "0xd09fa12673582febda0a734209a807c069eff868",
       "weth_swaps": 4,
@@ -125,6 +100,30 @@
       "days_to_gate": 58.8
     },
     {
+      "addr": "0x7f0aca7cc94b00df5142b9e79d38099e963e4111",
+      "weth_swaps": 3,
+      "raw_swaps": 3,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 0,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 1,
+      "sells": 2,
+      "tokens": 1,
+      "basket": [
+        "USDC"
+      ],
+      "closed": 1,
+      "span_days": 2.7,
+      "per_day": 1.1,
+      "closed_per_day": 0.37,
+      "last_seen": "2026-09-04 14:56 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 54.1
+    },
+    {
       "addr": "0x62265261621232bfe02baa80adc30ab00791b5e8",
       "weth_swaps": 7,
       "raw_swaps": 8,
@@ -147,6 +146,140 @@
       "last_seen": "2026-09-04 14:53 UTC",
       "idle_days": 0.0,
       "days_to_gate": 54.1
+    },
+    {
+      "addr": "0xf016fc44e44898c181a71001ddffb41639bcf453",
+      "weth_swaps": 3,
+      "raw_swaps": 7,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 4,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 2,
+      "sells": 1,
+      "tokens": 2,
+      "basket": [
+        "USDC",
+        "USDT"
+      ],
+      "closed": 1,
+      "span_days": 2.2,
+      "per_day": 1.3,
+      "closed_per_day": 0.45,
+      "last_seen": "2026-09-04 14:58 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 44.4
+    },
+    {
+      "addr": "0x4937e24744a1b009a66761642d700e7d4e3f016d",
+      "weth_swaps": 5,
+      "raw_swaps": 5,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 0,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 3,
+      "sells": 2,
+      "tokens": 2,
+      "basket": [
+        "USDC",
+        "USDT"
+      ],
+      "closed": 2,
+      "span_days": 3.9,
+      "per_day": 1.3,
+      "closed_per_day": 0.51,
+      "last_seen": "2026-09-04 14:55 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 39.2
+    },
+    {
+      "addr": "0x368f639b0cdc91aae859c74c4d3744311498472d",
+      "weth_swaps": 13,
+      "raw_swaps": 13,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 0,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 5,
+      "sells": 8,
+      "tokens": 4,
+      "basket": [
+        "DAI",
+        "Roscoe",
+        "Sparky",
+        "XCAT"
+      ],
+      "closed": 2,
+      "span_days": 10.3,
+      "per_day": 1.3,
+      "closed_per_day": 0.19,
+      "last_seen": "2026-09-04 14:59 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 105.3
+    },
+    {
+      "addr": "0x839a68c9a3abd2dbbdb1dec62841c1127b38ce1a",
+      "weth_swaps": 13,
+      "raw_swaps": 13,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 0,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 5,
+      "sells": 8,
+      "tokens": 1,
+      "basket": [
+        "VIBE"
+      ],
+      "closed": 8,
+      "span_days": 8.8,
+      "per_day": 1.5,
+      "closed_per_day": 0.91,
+      "last_seen": "2026-09-04 14:59 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 22.0
+    },
+    {
+      "addr": "0xe5b6fa7fd5c481c7d5eab6475ca1822c80833120",
+      "weth_swaps": 26,
+      "raw_swaps": 39,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 13,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 12,
+      "sells": 14,
+      "tokens": 10,
+      "basket": [
+        "AAVE",
+        "ENA",
+        "MEME",
+        "PEPE",
+        "SHIB",
+        "SKY",
+        "STORM",
+        "USDC",
+        "USDT",
+        "XAUt"
+      ],
+      "closed": 12,
+      "span_days": 15.1,
+      "per_day": 1.7,
+      "closed_per_day": 0.8,
+      "last_seen": "2026-09-01 23:50 UTC",
+      "idle_days": 2.6,
+      "days_to_gate": 25.0
     },
     {
       "addr": "0x62c5b8b6d052fed0a29c1b95dc92c89887f9d7f2",
@@ -172,34 +305,6 @@
       "last_seen": "2026-09-04 14:50 UTC",
       "idle_days": 0.0,
       "days_to_gate": 20.4
-    },
-    {
-      "addr": "0x422cbbee1eaccdba585e43d91b10b50214d9a624",
-      "weth_swaps": 23,
-      "raw_swaps": 23,
-      "skipped": {
-        "둘다기축": 0,
-        "WETH페어아님": 0,
-        "금액0": 0
-      },
-      "truncated": false,
-      "buys": 10,
-      "sells": 13,
-      "tokens": 5,
-      "basket": [
-        "GHX",
-        "GREEN",
-        "USDC",
-        "USDT",
-        "eMDR"
-      ],
-      "closed": 8,
-      "span_days": 11.9,
-      "per_day": 1.9,
-      "closed_per_day": 0.67,
-      "last_seen": "2026-09-04 14:49 UTC",
-      "idle_days": 0.0,
-      "days_to_gate": 29.9
     },
     {
       "addr": "0x0a1b652a4dcb064b9af3cefe784fba9684b795d3",
@@ -344,33 +449,6 @@
       "days_to_gate": 20.4
     },
     {
-      "addr": "0xb389099025c922510f506335be975ea75579ef1a",
-      "weth_swaps": 36,
-      "raw_swaps": 41,
-      "skipped": {
-        "둘다기축": 0,
-        "WETH페어아님": 5,
-        "금액0": 0
-      },
-      "truncated": false,
-      "buys": 22,
-      "sells": 14,
-      "tokens": 4,
-      "basket": [
-        "BITCOIN",
-        "SPX",
-        "USDC",
-        "USDT"
-      ],
-      "closed": 23,
-      "span_days": 14.2,
-      "per_day": 2.5,
-      "closed_per_day": 1.62,
-      "last_seen": "2026-09-04 14:49 UTC",
-      "idle_days": 0.0,
-      "days_to_gate": 12.3
-    },
-    {
       "addr": "0x6cd1b8cfcd2ca2bcdb46a2d96bd22b92e16ba427",
       "weth_swaps": 38,
       "raw_swaps": 64,
@@ -401,6 +479,181 @@
       "last_seen": "2026-09-04 14:50 UTC",
       "idle_days": 0.0,
       "days_to_gate": 153.8
+    },
+    {
+      "addr": "0xc7fc841be8abc28a9483d00f4aaf2d88a3092613",
+      "weth_swaps": 52,
+      "raw_swaps": 67,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 15,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 26,
+      "sells": 26,
+      "tokens": 25,
+      "basket": [
+        "AAVE",
+        "ASIC",
+        "BEARDY",
+        "CFG",
+        "CLORE",
+        "DAI",
+        "HYPER",
+        "JPYC",
+        "LDO",
+        "LINK",
+        "NEXO",
+        "OHM",
+        "PIRATE",
+        "PNDC",
+        "SHRUB",
+        "STEROID",
+        "SUPER",
+        "UNI",
+        "USDC",
+        "USDT",
+        "VIBE",
+        "WBTC",
+        "WIN",
+        "crypto",
+        "uPEG"
+      ],
+      "closed": 11,
+      "span_days": 20.6,
+      "per_day": 2.5,
+      "closed_per_day": 0.53,
+      "last_seen": "2026-09-04 14:57 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 37.7
+    },
+    {
+      "addr": "0x7edd653159fb448e71cdd64d48685df00e75c537",
+      "weth_swaps": 39,
+      "raw_swaps": 42,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 3,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 4,
+      "sells": 35,
+      "tokens": 4,
+      "basket": [
+        "DAI",
+        "USDC",
+        "USDT",
+        "WBTC"
+      ],
+      "closed": 3,
+      "span_days": 11.6,
+      "per_day": 3.4,
+      "closed_per_day": 0.26,
+      "last_seen": "2026-09-04 14:59 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 76.9
+    },
+    {
+      "addr": "0xf341ba3681ab35e2ae7c403306297fdd630bf0f9",
+      "weth_swaps": 49,
+      "raw_swaps": 49,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 0,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 29,
+      "sells": 20,
+      "tokens": 7,
+      "basket": [
+        "LINK",
+        "MANYU",
+        "SHIB",
+        "UNI",
+        "USDC",
+        "USDT",
+        "XYO"
+      ],
+      "closed": 10,
+      "span_days": 14.0,
+      "per_day": 3.5,
+      "closed_per_day": 0.72,
+      "last_seen": "2026-09-04 14:59 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 27.8
+    },
+    {
+      "addr": "0xc7420914ec8042d9744063dfe41fe697731f4790",
+      "weth_swaps": 67,
+      "raw_swaps": 109,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 42,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 44,
+      "sells": 23,
+      "tokens": 4,
+      "basket": [
+        "USDC",
+        "USDT",
+        "WBTC",
+        "tBTC"
+      ],
+      "closed": 27,
+      "span_days": 18.2,
+      "per_day": 3.7,
+      "closed_per_day": 1.48,
+      "last_seen": "2026-09-04 14:50 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 13.5
+    },
+    {
+      "addr": "0x7a7a14ade713adbd4e84fbe9063b7ab8c2d852a8",
+      "weth_swaps": 66,
+      "raw_swaps": 79,
+      "skipped": {
+        "둘다기축": 0,
+        "WETH페어아님": 13,
+        "금액0": 0
+      },
+      "truncated": false,
+      "buys": 35,
+      "sells": 31,
+      "tokens": 20,
+      "basket": [
+        "AAVE",
+        "ARKM",
+        "AXS",
+        "DMT",
+        "DUCKS",
+        "GNO",
+        "KIZUNA",
+        "LINK",
+        "ONDO",
+        "PNDC",
+        "SERV",
+        "SYRUP",
+        "TITANX",
+        "UNI",
+        "USDC",
+        "USDT",
+        "VIBE",
+        "WBTC",
+        "YB",
+        "oSQTH"
+      ],
+      "closed": 33,
+      "span_days": 17.9,
+      "per_day": 3.7,
+      "closed_per_day": 1.84,
+      "last_seen": "2026-09-04 14:56 UTC",
+      "idle_days": 0.0,
+      "days_to_gate": 10.9
     }
   ]
 }
