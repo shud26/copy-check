@@ -145,6 +145,19 @@ def build():
                     for k, v in sorted(cnt.items(),
                                        key=lambda x: order.get(x[0][0], 9)))
 
+    # ⚠️ 데모 지갑이 하나라도 있으면 상단에 크게 알린다.
+    #    카드마다 작게 붙는 "데모 등록(소급)" 배지만으로는 공개 링크에서
+    #    이 화면을 실제 성적표로 오해할 수 있다.
+    #    진짜 등록 지갑만 남으면 이 배너는 저절로 사라진다.
+    n_demo = sum(1 for r in rs if r.get("demo"))
+    banner = ""
+    if n_demo:
+        which = "여기 지갑 전부는" if n_demo == len(rs) else f"여기 지갑 {n_demo}개는"
+        banner = (f'<p class="banner"><b>데모 화면입니다.</b> {which} 화면을 확인하려고 '
+                  f'과거 시점에 <b>소급 등록</b>한 것입니다. 이 도구가 주장하는 '
+                  f'“등록 시점부터 앞으로만 센다”가 지켜지지 않은 결과이므로, '
+                  f'성적표로 읽으면 안 됩니다.</p>')
+
     page = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -197,11 +210,15 @@ border-radius:2px;padding:1px 6px;opacity:.8}}
 .note{{font-size:12.5px;color:var(--dim);line-height:1.9;margin-top:34px;
 border-top:1px solid var(--line);padding-top:18px}}
 .note b{{color:var(--fg)}}
+.banner{{border:1px solid var(--warn);border-radius:3px;padding:11px 14px;
+margin:18px 0 4px;font-size:13px;line-height:1.8;color:var(--fg)}}
+.banner b{{color:var(--warn)}}
 </style>
 <div class="wrap">
 <h1>Copy Check</h1>
 <p class="sub">지갑을 따라 사면 실제로 돈이 되는가 — 등록 시점부터 앞으로만, 가스 포함<br>
 {html.escape(d['generated_at'])} · 블록 {d['head_block']:,} · {html.escape(d['chain'])}</p>
+{banner}
 <div class="chips">{chips}</div>
 <div class="cards">{"".join(card(r) for r in rs)}</div>
 
@@ -218,6 +235,13 @@ border-top:1px solid var(--line);padding-top:18px}}
 </div>"""
     (OUT / "index.html").write_text(page, encoding="utf-8")
     print(f"→ {OUT/'index.html'}  ({len(rs)}건)")
+
+    # GitHub Pages 는 저장소 루트 아니면 docs/ 만 게시할 수 있다.
+    # out/ 은 작업 결과, docs/ 는 공개본. 같은 파일이지만 역할이 다르다.
+    docs = pathlib.Path("docs")
+    if docs.is_dir():
+        (docs / "index.html").write_text(page, encoding="utf-8")
+        print(f"→ {docs/'index.html'}  (공개본)")
 
 
 if __name__ == "__main__":
