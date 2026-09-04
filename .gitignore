@@ -11,3 +11,4 @@ __pycache__/
 # 노드
 node_modules/
 .next/
+logs/

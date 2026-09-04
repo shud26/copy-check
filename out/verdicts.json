@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-04 15:04 UTC",
-  "head_block": 25904728,
+  "generated_at": "2026-09-04 15:08 UTC",
+  "head_block": 25904749,
   "subgraph": "5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV",
   "chain": "ethereum",
   "results": [
@@ -10,7 +10,7 @@
       "chain": "ethereum",
       "pinned_block": 25646367,
       "pinned_at": "2026-07-30 17:45 UTC",
-      "span_blocks": 258361,
+      "span_blocks": 258382,
       "closed": 567,
       "wins": 235,
       "win_rate": 41.4,
@@ -35,7 +35,7 @@
       "truncated": true,
       "gas_skipped_bot": 2380,
       "gas_missing": 0,
-      "seconds": 12.1,
+      "seconds": 9.6,
       "error": null
     },
     {
@@ -44,7 +44,7 @@
       "chain": "ethereum",
       "pinned_block": 25646367,
       "pinned_at": "2026-07-30 17:45 UTC",
-      "span_blocks": 258361,
+      "span_blocks": 258382,
       "closed": 746,
       "wins": 399,
       "win_rate": 53.5,
@@ -59,17 +59,17 @@
       "verdict": "🤖 봇",
       "why": "하루 21건 · 토큰 1종 — 사람이 따라갈 수 있는 빈도가 아니다",
       "demo": true,
-      "raw_swaps": 3328,
+      "raw_swaps": 3329,
       "used_swaps": 899,
       "skipped": {
         "둘다기축": 0,
-        "WETH페어아님": 2429,
+        "WETH페어아님": 2430,
         "금액0": 0
       },
       "truncated": false,
       "gas_skipped_bot": 0,
       "gas_missing": 0,
-      "seconds": 11.3,
+      "seconds": 5.6,
       "error": null
     },
     {
@@ -78,7 +78,7 @@
       "chain": "ethereum",
       "pinned_block": 25646367,
       "pinned_at": "2026-07-30 17:45 UTC",
-      "span_blocks": 258361,
+      "span_blocks": 258382,
       "closed": 1323,
       "wins": 782,
       "win_rate": 59.1,
@@ -103,7 +103,7 @@
       "truncated": false,
       "gas_skipped_bot": 2111,
       "gas_missing": 0,
-      "seconds": 4.8,
+      "seconds": 4.3,
       "error": null
     },
     {
@@ -112,7 +112,7 @@
       "chain": "ethereum",
       "pinned_block": 25646367,
       "pinned_at": "2026-07-30 17:45 UTC",
-      "span_blocks": 258361,
+      "span_blocks": 258382,
       "closed": 1198,
       "wins": 538,
       "win_rate": 44.9,
@@ -137,7 +137,7 @@
       "truncated": true,
       "gas_skipped_bot": 3536,
       "gas_missing": 0,
-      "seconds": 14.0,
+      "seconds": 6.8,
       "error": null
     },
     {
@@ -146,7 +146,7 @@
       "chain": "ethereum",
       "pinned_block": 25646367,
       "pinned_at": "2026-07-30 17:45 UTC",
-      "span_blocks": 258361,
+      "span_blocks": 258382,
       "closed": 0,
       "wins": 0,
       "win_rate": 0.0,
@@ -171,7 +171,7 @@
       "truncated": true,
       "gas_skipped_bot": 0,
       "gas_missing": 0,
-      "seconds": 10.3,
+      "seconds": 7.0,
       "error": null
     },
     {
@@ -180,7 +180,7 @@
       "chain": "ethereum",
       "pinned_block": 25904727,
       "pinned_at": "2026-09-04 15:03 UTC",
-      "span_blocks": 1,
+      "span_blocks": 22,
       "closed": 0,
       "wins": 0,
       "win_rate": 0.0,
@@ -214,7 +214,7 @@
       "chain": "ethereum",
       "pinned_block": 25904727,
       "pinned_at": "2026-09-04 15:03 UTC",
-      "span_blocks": 1,
+      "span_blocks": 22,
       "closed": 0,
       "wins": 0,
       "win_rate": 0.0,
@@ -239,7 +239,7 @@
       "truncated": false,
       "gas_skipped_bot": 0,
       "gas_missing": 0,
-      "seconds": 0.3,
+      "seconds": 0.4,
       "error": null
     },
     {
@@ -248,7 +248,7 @@
       "chain": "ethereum",
       "pinned_block": 25904727,
       "pinned_at": "2026-09-04 15:03 UTC",
-      "span_blocks": 1,
+      "span_blocks": 22,
       "closed": 0,
       "wins": 0,
       "win_rate": 0.0,
