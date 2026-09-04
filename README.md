@@ -61,11 +61,18 @@ Two of these thresholds are themselves defended against measurement artifacts:
 cp .env.example .env         # add a free The Graph API key
 python3 verdict.py           # self-test: no network, no key needed
 
+python3 candidates.py                   # find wallets that CAN be scored
 python3 scan.py add 0xWALLET nickname   # pin the wallet at the current block
 python3 scan.py list                    # registered wallets and elapsed blocks
 python3 scan.py                         # score everything → out/verdicts.json
-python3 build_page.py                   # → out/index.html
+python3 build_page.py                   # → out/index.html, docs/index.html
 ```
+
+`candidates.py` deliberately **never computes a candidate's past PnL** — it does not
+even read prices, and counts round-trips by quantity alone. Choosing candidates by
+past profit would be picking after seeing the answer, which is exactly what the
+pinned-block rule exists to prevent. It ranks by how *human-paced* a wallet is, not
+by how fast a verdict will arrive; sorting by speed put the most bot-like wallets on top.
 
 `out/index.html` reads only the JSON. No network, no API key, opens offline, deploys as a static file.
 
@@ -78,8 +85,9 @@ python3 build_page.py                   # → out/index.html
 | `gas.py` | Real gas from RPC receipts, 12 parallel workers, on-disk cache. |
 | `graph.py` | The Graph gateway client. |
 | `scan.py` | Registry (`add` / `list` / scan) → `out/verdicts.json`. |
+| `candidates.py` | Finds wallets that *can* be scored — human-paced, trades WETH pairs, actually sells. **Blind to past profit by construction.** |
 | `build_page.py`, `icons.py` | JSON → static HTML, inline SVG icons. |
-| [`NOTES.md`](NOTES.md) | Twelve things measurement contradicted the docs about. Written during the build. |
+| [`NOTES.md`](NOTES.md) | Fourteen things measurement contradicted the docs — or contradicted us. Written during the build. |
 
 Performance: **270–450s per wallet → 4.5–7.4s**, up to 80×. The bottleneck was never the subgraph (8.2s for 3,447 swaps) — it was sequential gas lookups (8.7 minutes for the same set).
 
@@ -99,6 +107,8 @@ Stated plainly, because the tool's whole argument is about not hiding things.
 <p align="center">
   <img src="docs/screen-full.jpg" width="620" alt="Full page: five wallet cards including withheld and insufficient-sample verdicts, plus the footer disclaimer">
 </p>
+
+Live page: **https://shud26.github.io/copy-check/**
 
 Built for ETHOnline. Data: The Graph (Uniswap v3 Ethereum subgraph) + public Ethereum RPC.
 
@@ -162,11 +172,17 @@ Built for ETHOnline. Data: The Graph (Uniswap v3 Ethereum subgraph) + public Eth
 cp .env.example .env         # The Graph API 키 채우기 (무료)
 python3 verdict.py           # 자체 검증 — 네트워크도 키도 필요 없음
 
+python3 candidates.py            # 채점 가능한 지갑 찾기
 python3 scan.py add 0x지갑 별명   # 지금 블록에 못박고 등록
 python3 scan.py list             # 등록 현황과 경과 블록
 python3 scan.py                  # 전부 채점 → out/verdicts.json
-python3 build_page.py            # → out/index.html
+python3 build_page.py            # → out/index.html, docs/index.html
 ```
+
+`candidates.py` 는 후보의 **과거 손익을 절대 계산하지 않는다.** 가격을 아예 읽지 않고
+왕복도 수량으로만 센다. 손익 보고 고르면 그게 답을 보고 고르는 것이고,
+등록 시점을 못박는 이유가 통째로 사라진다. 정렬도 "판정이 빨리 나오는 순"이 아니라
+**조용한 순**이다 — 속도로 세웠더니 봇에 제일 가까운 지갑이 맨 위에 왔다(NOTES 14번).
 
 `out/index.html`은 JSON만 읽는다. 네트워크도 API 키도 없어서 오프라인에서 열리고 정적 호스팅에 그대로 올라간다.
 
@@ -179,8 +195,9 @@ python3 build_page.py            # → out/index.html
 | `gas.py` | RPC 리시트로 실제 가스 조회. 12워커 병렬 + 디스크 캐시. |
 | `graph.py` | The Graph 게이트웨이 클라이언트. |
 | `scan.py` | 지갑 등록부(`add`/`list`/채점) → `out/verdicts.json`. |
+| `candidates.py` | **채점이 가능한** 지갑 찾기 — 사람 빈도, WETH 페어, 판 적 있음. **손익은 구조적으로 못 본다.** |
 | `build_page.py`, `icons.py` | JSON → 정적 HTML, 인라인 SVG 아이콘. |
-| [`NOTES.md`](NOTES.md) | 문서와 다르게 동작한 12가지. 만들면서 그때그때 적은 것. |
+| [`NOTES.md`](NOTES.md) | 문서와 다르게 동작한 것, 그리고 우리가 틀린 것 14가지. 만들면서 그때그때 적은 것. |
 
 속도: **지갑당 270~450초 → 4.5~7.4초**, 최대 80배. 병목은 서브그래프가 아니라(스왑 3,447건에 8.2초) 순차 가스 조회였다(같은 양에 8.7분).
 
@@ -194,5 +211,7 @@ python3 build_page.py            # → out/index.html
 - **`wallets.json`에 들어있는 지갑은 데모 등록이다**(`--back`, 소급 못박기). 화면에 보여줄 게 필요해서 넣은 것이고 `demo: true`로 표시된다. **진짜 미래검증이 아니다.**
 - **화면이 한국어다.** 코드 주석과 `NOTES.md`도 마찬가지.
 - **표본에 `🟢 통과`가 하나도 없다.** 지갑 5개 중 봇 3, 판정 보류 1, 표본 부족 1. 꾸며낸 데모가 아니라 지금 나오는 실제 결과다.
+
+공개 화면: **https://shud26.github.io/copy-check/**
 
 ETHOnline 출품작. 데이터: The Graph(유니스왑 v3 이더리움 서브그래프) + 공개 이더리움 RPC.
