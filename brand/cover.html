@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:640px;height:360px}
+  body{background:#16181d;color:#e6e8ec;display:flex;align-items:center;gap:34px;
+       padding:0 46px;font:400 15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  .mark{flex:0 0 132px;height:132px;color:#e6e8ec}
+  h1{font-size:44px;line-height:1.05;letter-spacing:-1.1px;font-weight:600}
+  .sub{margin-top:12px;font-size:17px;color:#b6bcc7}
+  .rules{margin-top:20px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:#8b93a1}
+  .rules div{display:flex;gap:9px;align-items:baseline}
+  .b{color:#fbbf24;font-size:11px}
+  .foot{margin-top:22px;font-size:12px;color:#6b7280;letter-spacing:.2px}
+</style>
+<svg class="mark" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+     stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M1.9 12.2 H14.1" opacity="0.38"/>
+  <path d="M4.0 12.2 V9.3"/><path d="M6.2 12.2 V8.0"/><path d="M12.0 12.2 V8.8"/>
+  <path d="M9.4 12.2 V3.2" stroke="#fbbf24" stroke-dasharray="1.3 1.5" opacity="0.85"/>
+</svg>
+<div>
+  <h1>Copy Check</h1>
+  <div class="sub">Is that wallet actually worth copying?</div>
+  <div class="rules">
+    <div><span class="b">&#9679;</span><span>Scored <strong>after gas</strong> — not on paper PnL.</span></div>
+    <div><span class="b">&#9679;</span><span>Counted <strong>only forward</strong> from the block you registered it.</span></div>
+    <div><span class="b">&#9679;</span><span>Drop its single best trade. Does it still profit?</span></div>
+  </div>
+  <div class="foot">No evidence &rarr; no verdict. Built on The Graph.</div>
+</div>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 기준선(0) — 이 위에 남아야 통과다 -->
+  <path d="M1.6 11.4 H14.4" opacity="0.45"/>
+  <!-- 평범한 이익들 — 실선 -->
+  <path d="M3.6 11.4 V8.7"/>
+  <path d="M5.8 11.4 V7.6"/>
+  <path d="M12.4 11.4 V8.2"/>
+  <!-- 제일 컸던 1건 — 점선(빼고 센다) -->
+  <path d="M9.1 11.4 V2.6" stroke-dasharray="1.5 1.5" opacity="0.55"/>
+  <!-- 그걸 빼도 위로 가는 추세 -->
+  <path d="M2.4 13.9 L7.2 13.9 L11 13.0 L14.0 13.0" opacity="0"/>
+</svg>
